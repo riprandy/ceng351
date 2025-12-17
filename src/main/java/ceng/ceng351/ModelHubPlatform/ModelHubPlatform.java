@@ -273,16 +273,14 @@ public int insertTasks(Task[] tasks) {
         return 0;
     }
 
-    try (PreparedStatement[] statements = new PreparedStatement[tasks.length]) {
-        for (int i = 0; i < tasks.length; i++) {
-            Task task = tasks[i];
-            statements[i] = this.connection.prepareStatement(
-                    "INSERT INTO Tasks (task_name, description, type, deadline) VALUES (?, ?, ?, ?)");
-            statements[i].setString(1, task.gettask_name());
-            statements[i].setString(2, task.getDescription());
-            statements[i].setString(3, task.getType());
-            statements[i].setTimestamp(4, new Timestamp(task.getDeadline().getTime()));
-            rowsInserted += statements[i].executeUpdate();
+    try {
+        for (Task task : tasks) {
+            PreparedStatement stmt = this.connection.prepareStatement(
+                    "INSERT INTO Tasks (TaskID, task_name) VALUES (?, ?)");
+            stmt.setInt(1, task.getTaskID());
+            stmt.setString(2, task.getTask_name());
+            rowsInserted += stmt.executeUpdate();
+            stmt.close();
         }
     } catch (SQLException e) {
         e.printStackTrace();
